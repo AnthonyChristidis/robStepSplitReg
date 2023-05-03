@@ -33,10 +33,3 @@ addons:
 global:
   - _R_CHECK_FORCE_SUGGESTS_: false
   
-compiler: gcc
-script:
-  - export CC=gcc-7
-  - export CXX=g++-7
-  - cmake --version
-  - cmake CMakeLists.txt
-  - cmake  --build . --target neat
