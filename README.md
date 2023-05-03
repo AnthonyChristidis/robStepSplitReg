@@ -1,15 +1,3 @@
----
-output: github_document
----
-
-```{r, echo = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  fig.path = "README-"
-)
-```
-
 [![Build Status](https://app.travis-ci.com/AnthonyChristidis/robStepSplitReg?branch=master)](https://app.travis-ci.com/AnthonyChristidis/robStepSplitReg) [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/robStepSplitReg)](https://cran.r-project.org/package=robStepSplitReg) [![Downloads](http://cranlogs.r-pkg.org/badges/robStepSplitReg)](https://cran.r-project.org/package=robStepSplitReg)
 
 robStepSplitReg
