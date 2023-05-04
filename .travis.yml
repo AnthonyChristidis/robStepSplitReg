@@ -1,6 +1,20 @@
 language: r
 cache: packages
 
+before_install:
+  - mkdir -p ~/.R
+  - echo 'CXX17 = g++-7 -std=gnu++17 -fPIC' > ~/.R/Makevars
+    
+addons:
+  apt:
+    sources:
+      - sourceline: 'ppa:ubuntu-toolchain-r/test'
+    packages:
+      - g++-7
+      
+after_success:
+  - Rscript -e 'covr::codecov()'
+
 matrix:
   include:
     - os: linux
@@ -17,17 +31,6 @@ matrix:
       r: release
   allow_failures:
     - os: osx
-    
-before_install: sudo apt-get install libgdal-dev libproj-dev libgeos-dev libudunits2-dev netcdf-bin
-    
-addons:
-  apt:
-    packages:
-      - libgdal-dev
-      - libproj-dev
-      - libudunits2-dev
-      - netcdf-bin
-      - libmpfr-dev
 
 global:
   - _R_CHECK_FORCE_SUGGESTS_: false
