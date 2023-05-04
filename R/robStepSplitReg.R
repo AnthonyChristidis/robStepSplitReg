@@ -139,13 +139,6 @@ robStepSplitReg <- function(x, y,
         stop("The size of the models cannot be equal or exceed n.")
   }
   
-  # Package check for computation of coefficients
-  if(compute_coef & !requireNamespace("pense", quietly = TRUE)){
-    warning("Package \"pense\" needed to compute coefficients. Please install it.",
-            call. = FALSE)
-    compute_coef <- FALSE
-  }
-  
   # Standarization predictors and response
   # Computation of correlation for predictors and response
   if(robust){
