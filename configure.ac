@@ -324,6 +324,6 @@ fi
 ##
 ## Write output
 ##
-AC_CONFIG_HEADERS([src/autoconfig.hpp])
+AC_CONFIG_HEADERS([src/autoconfig.h])
 AC_CONFIG_FILES([src/Makevars R/autoconfig.R])
 AC_OUTPUT

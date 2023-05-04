@@ -96,9 +96,9 @@ for(cont_id in contamination_indices){
 
 # Ensemble models
 ensemble_fit <- robStepSplitReg(x_train, y_train,
-                                n_models = 5,
+                                n_models = 3,
                                 model_saturation = c("fixed", "p-value")[1],
-                                alpha = 0.05, model_size = 25,
+                                alpha = 0.05, model_size = floor(n/3),
                                 robust = TRUE,
                                 compute_coef = TRUE,
                                 pense_alpha = 1/4, pense_cv_k = 5, pense_cv_repl = 1,
