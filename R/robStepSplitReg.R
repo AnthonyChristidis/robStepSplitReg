@@ -15,7 +15,7 @@
 #' @param alpha P-value used to determine when the model is saturated
 #' @param model_size Size of the models in the ensemble.
 #' @param robust Argument to determine if robust measures of location, scale and correlation are used. Default is TRUE.
-#' @param compute_coef Argument to determine if coefficients are computed (via adaptive PENSE) for each model. Default is TRUE.
+#' @param compute_coef Argument to determine if coefficients are computed (via adaptive PENSE) for each model. Default is FALSE.
 #' @param pense_alpha Elastic net mixing parmeter for model shrinkage in adaptive PENSE. Default is 1/4.
 #' @param pense_cv_k Number of folds for the cross-validation procedure in adaptive PENSE. Default is 5.
 #' @param pense_cv_repl Number of replications of the cross-validation procedure. Default is 1.
@@ -105,7 +105,7 @@ robStepSplitReg <- function(x, y,
                             alpha = 0.05, 
                             model_size = NULL,
                             robust = TRUE,
-                            compute_coef = TRUE,
+                            compute_coef = FALSE,
                             pense_alpha = 1/4,
                             pense_cv_k = 5,
                             pense_cv_repl = 1,
@@ -137,6 +137,13 @@ robStepSplitReg <- function(x, y,
     if(is.null(model_size))
       model_size <- n - 1 else if(model_size >= n)
         stop("The size of the models cannot be equal or exceed n.")
+  }
+  
+  # Package check for computation of coefficients
+  if(compute_coef & !requireNamespace("pense", quietly = TRUE)){
+    warning("Package \"pense\" needed to compute coefficients. Please install it.",
+            call. = FALSE)
+    compute_coef <- FALSE
   }
   
   # Standarization predictors and response

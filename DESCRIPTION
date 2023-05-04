@@ -8,13 +8,14 @@ Author: c(person("Anthony", "Christidis", role=c("aut", "cre"), email = "anthony
 Maintainer: Anthony Christidis <anthony.christidis@stat.ubc.ca>
 Description: Functions to perform robust stepwise split regularized regression. The approach first 
              uses a robust stepwise algorithm to split the variables into the models with a goodness
-             of fit criterion, and then a robust regularized estimator is applied to each model. 
+             of fit criterion. An adaptive robust regularized estimator can then be applied to each model. 
 License: GPL (>= 2)
+Encoding: UTF-8
 Biarch: true
 Imports: Rcpp (>= 1.0.9), 
-         cellWise, 
-         pense
-Suggests: testthat,
+         cellWise
+Suggests: pense,
+          testthat,
           mvnfast
 LinkingTo: Rcpp, RcppArmadillo
 RoxygenNote: 7.2.1

@@ -12,7 +12,7 @@ robStepSplitReg(
   alpha = 0.05,
   model_size = NULL,
   robust = TRUE,
-  compute_coef = TRUE,
+  compute_coef = FALSE,
   pense_alpha = 1/4,
   pense_cv_k = 5,
   pense_cv_repl = 1,
@@ -34,7 +34,7 @@ robStepSplitReg(
 
 \item{robust}{Argument to determine if robust measures of location, scale and correlation are used. Default is TRUE.}
 
-\item{compute_coef}{Argument to determine if coefficients are computed (via adaptive PENSE) for each model. Default is TRUE.}
+\item{compute_coef}{Argument to determine if coefficients are computed (via adaptive PENSE) for each model. Default is FALSE.}
 
 \item{pense_alpha}{Elastic net mixing parmeter for model shrinkage in adaptive PENSE. Default is 1/4.}
 
