@@ -28,7 +28,6 @@ addons:
       - libudunits2-dev
       - netcdf-bin
       - libmpfr-dev
-      - g++-7
 
 global:
   - _R_CHECK_FORCE_SUGGESTS_: false

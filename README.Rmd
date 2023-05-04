@@ -75,7 +75,8 @@ for(cont_id in contamination_indices){
   
   a <- runif(p, min = -1, max = 1)
   a <- a - as.numeric((1/p)*t(a) %*% rep(1, p))
-  x_train[cont_id,] <- mvnfast::rmvn(1, rep(0, p), 0.1^2*diag(p)) + k_lev * a / as.numeric(sqrt(t(a) %*% solve(sigma.mat) %*% a))
+  x_train[cont_id,] <- mvnfast::rmvn(1, rep(0, p), 0.1^2*diag(p)) + 
+    k_lev * a / as.numeric(sqrt(t(a) %*% solve(sigma.mat) %*% a))
   y_train[cont_id] <- t(x_train[cont_id,]) %*% beta_cont
 }
 
