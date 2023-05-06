@@ -63,7 +63,7 @@
 #' 
 #' # Ensemble models
 #' ensemble_fit <- robStepSplitReg(x_train, y_train,
-#'                                 n_models = 2,
+#'                                 n_models = 1,
 #'                                 model_saturation = c("fixed", "p-value")[1],
 #'                                 alpha = 0.05, model_size = floor(n/5),
 #'                                 robust = TRUE,
