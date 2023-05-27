@@ -1,4 +1,4 @@
-[![Build Status](https://app.travis-ci.com/AnthonyChristidis/robStepSplitReg.svg?branch=master)](https://app.travis-ci.com/AnthonyChristidis/robStepSplitReg) [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/robStepSplitReg)](https://cran.r-project.org/package=robStepSplitReg) [![Downloads](http://cranlogs.r-pkg.org/badges/robStepSplitReg)](https://cran.r-project.org/package=robStepSplitReg)
+[![CRAN checks](https://badges.cranchecks.info/summary/robStepSplitReg.svg)](https://cran.r-project.org/web/checks/check_results_robStepSplitReg.html) [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/robStepSplitReg)](https://cran.r-project.org/package=robStepSplitReg) [![Downloads](http://cranlogs.r-pkg.org/badges/robStepSplitReg)](https://cran.r-project.org/package=robStepSplitReg)
 
 robStepSplitReg
 ================
