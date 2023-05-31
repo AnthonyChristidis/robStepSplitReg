@@ -1,2 +1,6 @@
 # robStepSplitReg 1.0.0
 * Initial stable release of package.
+
+# robStepSplitReg 1.0.1
+* Fix badge for README file.
+* Make main function silent.
