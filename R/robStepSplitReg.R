@@ -20,6 +20,7 @@
 #' @param pense_cv_k Number of folds for the cross-validation procedure in adaptive PENSE. Default is 5.
 #' @param pense_cv_repl Number of replications of the cross-validation procedure. Default is 1.
 #' @param cl Number of clusters used for the adaptive PENSE fit. If NULL (default), there is no parallelization.
+#' @param ... Additional parameters for adaptive PENSE fit.
 #' 
 #' @return An object of class robStepSplitReg.
 #' 
@@ -109,7 +110,8 @@ robStepSplitReg <- function(x, y,
                             pense_alpha = 1/4,
                             pense_cv_k = 5,
                             pense_cv_repl = 1,
-                            cl = NULL){
+                            cl = NULL,
+                            ...){
   
   # Data input check
   DataCheck(x, y, 
@@ -210,7 +212,8 @@ robStepSplitReg <- function(x, y,
       
       adapense_fit <- pense::adapense_cv(x[, output$selections[[model_id]]], y, 
                                          alpha = pense_alpha, cv_k = pense_cv_k, cv_repl = pense_cv_repl,
-                                         cl = cl)
+                                         cl = cl,
+                                         ...)
       output$intercepts[[model_id]] <- coef(adapense_fit)[1]
       output$coefficients[[model_id]] <- numeric(p)
       output$coefficients[[model_id]][output$selections[[model_id]]] <- coef(adapense_fit)[-1]

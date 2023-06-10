@@ -16,7 +16,8 @@ robStepSplitReg(
   pense_alpha = 1/4,
   pense_cv_k = 5,
   pense_cv_repl = 1,
-  cl = NULL
+  cl = NULL,
+  ...
 )
 }
 \arguments{
@@ -43,6 +44,8 @@ robStepSplitReg(
 \item{pense_cv_repl}{Number of replications of the cross-validation procedure. Default is 1.}
 
 \item{cl}{Number of clusters used for the adaptive PENSE fit. If NULL (default), there is no parallelization.}
+
+\item{...}{Additional parameters for adaptive PENSE fit.}
 }
 \value{
 An object of class robStepSplitReg.
