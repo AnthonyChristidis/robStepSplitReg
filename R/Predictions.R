@@ -113,7 +113,8 @@ predict.robStepSplitReg <- function(object, newx, group_index = NULL,
       selected_models[, model_id] <- sapply(cells_id, function(x) return(any(x %in% var_selections[[model_id]])), 
                                             simplify = TRUE)
     }
-    selected_models <- apply(selected_models, 1, function(x) return(which(x==0)))
+    selected_models <- lapply(1:nrow(newx), function(x, selected_models) return(which(selected_models[x, ] != 0)),
+                              selected_models = selected_models)
     output <- numeric(nrow(newx))
     for(obs_id in 1:nrow(newx)){
       

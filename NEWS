@@ -5,3 +5,8 @@
 * Fix badge for README file.
 * Make main function silent.
 * Add additional parameters for PENSE fit.
+
+# robStepSplitReg 1.0.2
+* Fix bug for dynamic predictions.
+* Revert to DDC function for robust correlations.
+* Change badge for README file.

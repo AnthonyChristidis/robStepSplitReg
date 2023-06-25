@@ -151,9 +151,8 @@ robStepSplitReg <- function(x, y,
     
     # Computation of correlations for predictors and response
     xy.std <- cbind(x.std, y.std)
-    est_xy <- cellWise::estLocScale(xy.std)
-    xy_wrap <- cellWise::wrap(xy.std, est_xy$loc, est_xy$scale, checkPars = list(silent = TRUE))$Xw
-    rob.cor <- cor(xy_wrap)
+    DDCxy <- cellWise::DDC(xy.std, DDCpars = list(fastDDC = TRUE, silent = TRUE))
+    rob.cor <- cor(DDCxy$Ximp)
     correlation.predictors <- rob.cor[-nrow(rob.cor),-ncol(rob.cor)]
     correlation.response <- rob.cor[-nrow(rob.cor), ncol(rob.cor)]
     
