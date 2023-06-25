@@ -2,7 +2,7 @@ Package: robStepSplitReg
 Type: Package
 Title: Robust Stepwise Split Regularized Regression
 Version: 1.0.2
-Date: 2023-06-24
+Date: 2023-06-25
 Authors@R: c(person("Anthony", "Christidis", role=c("aut", "cre"), email = "anthony.christidis@stat.ubc.ca"),
              person("Gabriela", "Cohen-Freue", role=c("aut"), email = "gcohen@stat.ubc.ca"))
 Maintainer: Anthony Christidis <anthony.christidis@stat.ubc.ca>

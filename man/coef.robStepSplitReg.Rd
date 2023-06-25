@@ -71,7 +71,8 @@ ensemble_fit <- robStepSplitReg(x_train, y_train,
                                 robust = TRUE,
                                 compute_coef = TRUE,
                                 pense_alpha = 1/4, pense_cv_k = 5, pense_cv_repl = 1,
-                                cl = NULL)
+                                cl = NULL,
+                                enpy_opts = pense::enpy_options(retain_max = 50))
 
 # Ensemble coefficients
 ensemble_coefs <- coef(ensemble_fit, group_index = 1:ensemble_fit$n_models)
@@ -88,7 +89,6 @@ ensemble_preds <- predict(ensemble_fit, newx = x_test,
                           group_index = 1:ensemble_fit$n_models,
                           dynamic = FALSE)
 mspe_ensemble <- mean((y_test - ensemble_preds)^2)/sigma^2
-
 
 }
 \seealso{
