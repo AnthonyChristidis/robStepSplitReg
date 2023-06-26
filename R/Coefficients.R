@@ -23,9 +23,9 @@
 #' 
 #' # Simulation parameters
 #' n <- 50
-#' p <- 500
+#' p <- 250
 #' rho <- 0.8
-#' p.active <- 100
+#' p.active <- 50
 #' snr <- 3
 #' contamination.prop <- 0.2
 #' 
