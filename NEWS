@@ -10,3 +10,7 @@
 * Fix bug for dynamic predictions.
 * Revert to DDC function for robust correlations.
 * Change badge for README file.
+
+# robStepSplitReg 1.1.0
+* Imputed data from DDC method used in the stepwise split selection procedure.
+* Instead of PENSE method used on original data for coefficients, elastic net method is used on imputed data from DDC method.

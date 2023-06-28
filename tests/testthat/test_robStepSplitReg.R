@@ -15,7 +15,7 @@ test_that("Error in the robStepSplitReg function.", {
   # Simulation parameters
   n <- 50
   p <- 500
-  rho <- 0.8
+  rho <- 0.5
   p.active <- 100
   snr <- 3
   contamination.prop <- 0.2
@@ -58,8 +58,7 @@ test_that("Error in the robStepSplitReg function.", {
   #                                 alpha = 0.05, model_size = n - 1,
   #                                 robust = TRUE,
   #                                 compute_coef = TRUE,
-  #                                 pense_alpha = 1/4, pense_cv_k = 5, pense_cv_repl = 1,
-  #                                 cl = NULL)
+  #                                 en_alpha = 1/4)
   # 
   # # Ensemble coefficients
   # ensemble_coefs <- coef(ensemble_fit, group_index = 1:ensemble_fit$n_models)

@@ -13,11 +13,7 @@ robStepSplitReg(
   model_size = NULL,
   robust = TRUE,
   compute_coef = FALSE,
-  pense_alpha = 1/4,
-  pense_cv_k = 5,
-  pense_cv_repl = 1,
-  cl = NULL,
-  ...
+  en_alpha = 1/4
 )
 }
 \arguments{
@@ -37,15 +33,7 @@ robStepSplitReg(
 
 \item{compute_coef}{Argument to determine if coefficients are computed (via adaptive PENSE) for each model. Default is FALSE.}
 
-\item{pense_alpha}{Elastic net mixing parmeter for model shrinkage in adaptive PENSE. Default is 1/4.}
-
-\item{pense_cv_k}{Number of folds for the cross-validation procedure in adaptive PENSE. Default is 5.}
-
-\item{pense_cv_repl}{Number of replications of the cross-validation procedure. Default is 1.}
-
-\item{cl}{Number of clusters used for the adaptive PENSE fit. If NULL (default), there is no parallelization.}
-
-\item{...}{Additional parameters for adaptive PENSE fit.}
+\item{en_alpha}{Elastic net mixing parmeter for parameters shrinkage. Default is 1/4.}
 }
 \value{
 An object of class robStepSplitReg.
@@ -59,10 +47,10 @@ library(mvnfast)
 
 # Simulation parameters
 n <- 50
-p <- 250
-rho <- 0.8
-p.active <- 50
-snr <- 3
+p <- 500
+rho <- 0.5
+p.active <- 100
+snr <- 1
 contamination.prop <- 0.2
 
 # Setting the seed
@@ -99,14 +87,12 @@ for(cont_id in contamination_indices){
 
 # Ensemble models
 ensemble_fit <- robStepSplitReg(x_train, y_train,
-                                n_models = 1,
+                                n_models = 5,
                                 model_saturation = c("fixed", "p-value")[1],
-                                alpha = 0.05, model_size = floor(n/5),
+                                alpha = 0.05, model_size = n - 1,
                                 robust = TRUE,
                                 compute_coef = TRUE,
-                                pense_alpha = 1/4, pense_cv_k = 5, pense_cv_repl = 1,
-                                cl = NULL,
-                                enpy_opts = pense::enpy_options(retain_max = 50))
+                                en_alpha = 1/4)
 
 # Ensemble coefficients
 ensemble_coefs <- coef(ensemble_fit, group_index = 1:ensemble_fit$n_models)

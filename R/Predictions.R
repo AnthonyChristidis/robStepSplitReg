@@ -25,10 +25,10 @@
 #' 
 #' # Simulation parameters
 #' n <- 50
-#' p <- 250
-#' rho <- 0.8
-#' p.active <- 50
-#' snr <- 3
+#' p <- 500
+#' rho <- 0.5
+#' p.active <- 100
+#' snr <- 1
 #' contamination.prop <- 0.2
 #' 
 #' # Setting the seed
@@ -65,14 +65,12 @@
 #' 
 #' # Ensemble models
 #' ensemble_fit <- robStepSplitReg(x_train, y_train,
-#'                                 n_models = 1,
+#'                                 n_models = 5,
 #'                                 model_saturation = c("fixed", "p-value")[1],
-#'                                 alpha = 0.05, model_size = floor(n/5),
+#'                                 alpha = 0.05, model_size = n - 1,
 #'                                 robust = TRUE,
 #'                                 compute_coef = TRUE,
-#'                                 pense_alpha = 1/4, pense_cv_k = 5, pense_cv_repl = 1,
-#'                                 cl = NULL,
-#'                                 enpy_opts = pense::enpy_options(retain_max = 50))
+#'                                 en_alpha = 1/4)
 #' 
 #' # Ensemble coefficients
 #' ensemble_coefs <- coef(ensemble_fit, group_index = 1:ensemble_fit$n_models)

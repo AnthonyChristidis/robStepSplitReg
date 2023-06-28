@@ -8,10 +8,7 @@ DataCheck <- function(x, y,
                       model_size,
                       robust,
                       compute_coef,
-                      pense_alpha,
-                      pense_cv_k,
-                      pense_cv_repl,
-                      cl){
+                      en_alpha){
   
   # Checking the input for the design matrix (x) and the response vector (y)
   if (all(!inherits(x, "matrix"), !inherits(x, "data.frame"))) {
@@ -74,32 +71,9 @@ DataCheck <- function(x, y,
     stop("compute_coef should be TRUE or FALSE.")
   
   # Check PENSE alpha value
-  if(!inherits(pense_alpha, "numeric")) {
-    stop("pense_alpha should be numeric.")
-  } else if(!all(pense_alpha <= 1, pense_alpha > 0)) {
-    stop("pense_alpha should be between 0 and 1.")
-  }
-  
-  # Check input for CV folds for PENSE
-  if(!inherits(pense_cv_k, "numeric")) {
-    stop("pense_cv_k should be numeric.")
-  } else if(any(!pense_cv_k == floor(pense_cv_k), pense_cv_k <= 0)) {
-    stop("pense_cv_k should be a positive integer.")
-  }
-  
-  # Check input for number of times CV is done for PENSE
-  if(!inherits(pense_cv_repl, "numeric")) {
-    stop("pense_cv_repl should be numeric.")
-  } else if(any(!pense_cv_repl == floor(pense_cv_repl), pense_cv_repl <= 0)) {
-    stop("pense_cv_repl should be a positive integer.")
-  }
-  
-  # Check input for number of clusters used for PENSE
-  if(!is.null(cl)){
-    if(!inherits(cl, "numeric")) {
-      stop("cl should be numeric.")
-    } else if(any(!cl == floor(cl), cl <= 0)) {
-      stop("cl should be a positive integer.")
-    }
+  if(!inherits(en_alpha, "numeric")) {
+    stop("en_alpha should be numeric.")
+  } else if(!all(en_alpha <= 1, en_alpha > 0)) {
+    stop("en_alpha should be between 0 and 1.")
   }
 }

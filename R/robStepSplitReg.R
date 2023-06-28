@@ -16,11 +16,7 @@
 #' @param model_size Size of the models in the ensemble.
 #' @param robust Argument to determine if robust measures of location, scale and correlation are used. Default is TRUE.
 #' @param compute_coef Argument to determine if coefficients are computed (via adaptive PENSE) for each model. Default is FALSE.
-#' @param pense_alpha Elastic net mixing parmeter for model shrinkage in adaptive PENSE. Default is 1/4.
-#' @param pense_cv_k Number of folds for the cross-validation procedure in adaptive PENSE. Default is 5.
-#' @param pense_cv_repl Number of replications of the cross-validation procedure. Default is 1.
-#' @param cl Number of clusters used for the adaptive PENSE fit. If NULL (default), there is no parallelization.
-#' @param ... Additional parameters for adaptive PENSE fit.
+#' @param en_alpha Elastic net mixing parmeter for parameters shrinkage. Default is 1/4.
 #' 
 #' @return An object of class robStepSplitReg.
 #' 
@@ -36,10 +32,10 @@
 #' 
 #' # Simulation parameters
 #' n <- 50
-#' p <- 250
-#' rho <- 0.8
-#' p.active <- 50
-#' snr <- 3
+#' p <- 500
+#' rho <- 0.5
+#' p.active <- 100
+#' snr <- 1
 #' contamination.prop <- 0.2
 #' 
 #' # Setting the seed
@@ -76,14 +72,12 @@
 #' 
 #' # Ensemble models
 #' ensemble_fit <- robStepSplitReg(x_train, y_train,
-#'                                 n_models = 1,
+#'                                 n_models = 5,
 #'                                 model_saturation = c("fixed", "p-value")[1],
-#'                                 alpha = 0.05, model_size = floor(n/5),
+#'                                 alpha = 0.05, model_size = n - 1,
 #'                                 robust = TRUE,
 #'                                 compute_coef = TRUE,
-#'                                 pense_alpha = 1/4, pense_cv_k = 5, pense_cv_repl = 1,
-#'                                 cl = NULL,
-#'                                 enpy_opts = pense::enpy_options(retain_max = 50))
+#'                                 en_alpha = 1/4)
 #' 
 #' # Ensemble coefficients
 #' ensemble_coefs <- coef(ensemble_fit, group_index = 1:ensemble_fit$n_models)
@@ -108,11 +102,7 @@ robStepSplitReg <- function(x, y,
                             model_size = NULL,
                             robust = TRUE,
                             compute_coef = FALSE,
-                            pense_alpha = 1/4,
-                            pense_cv_k = 5,
-                            pense_cv_repl = 1,
-                            cl = NULL,
-                            ...){
+                            en_alpha = 1/4){
   
   # Data input check
   DataCheck(x, y, 
@@ -122,10 +112,7 @@ robStepSplitReg <- function(x, y,
             model_size,
             robust,
             compute_coef,
-            pense_alpha,
-            pense_cv_k,
-            pense_cv_repl,
-            cl)
+            en_alpha)
   
   # Shuffle the data
   n <- nrow(x)
@@ -146,28 +133,30 @@ robStepSplitReg <- function(x, y,
   # Computation of correlation for predictors and response
   if(robust){
     
-    # Standardization of predictors and response
-    x.std <- apply(x, 2, function(x) return((x - median(x))/mad(x)))
-    y.std <- (y - median(y))/mad(y)
-    
     # Computation of correlations for predictors and response
-    xy.std <- cbind(x.std, y.std)
-    DDCxy <- cellWise::DDC(xy.std, DDCpars = list(fastDDC = TRUE, silent = TRUE))
+    DDCxy <- cellWise::DDC(cbind(x, y), DDCpars = list(fastDDC = TRUE, silent = TRUE))
     rob.cor <- cor(DDCxy$Ximp)
-    correlation.predictors <- rob.cor[-nrow(rob.cor),-ncol(rob.cor)]
-    correlation.response <- rob.cor[-nrow(rob.cor), ncol(rob.cor)]
+    Rx <- rob.cor[-nrow(rob.cor),-ncol(rob.cor)]
+    Ry <- rob.cor[-nrow(rob.cor), ncol(rob.cor)]
+    
+    # Standardization of predictors and response
+    x_imp <- DDCxy$Ximp[, -ncol(DDCxy$Ximp)]
+    y_imp <- DDCxy$Ximp[, ncol(DDCxy$Ximp)]
+    x.std <- apply(x_imp, 2, function(x) return((x - median(x))/mad(x)))
+    y.std <- (y_imp - median(y_imp))/mad(y_imp)
+    xy.std <- cbind(x.std, y.std)
     
   } else{
+    
+    # Computation of correlations for predictors and response
+    CORxy <- cor(cbind(x, y))
+    Rx <- CORxy[-nrow(CORxy), -ncol(CORxy)]
+    Ry <- CORxy[-nrow(CORxy), ncol(CORxy)]
     
     # Standardization of predictors and response
     x.std <- apply(x, 2, function(x) return((x - mean(x))/sd(x)))
     y.std <- (y - mean(y))/sd(y)
-    
-    # Computation of correlations for predictors and response
     xy.std <- cbind(x.std, y.std)
-    CORxy <- cor(xy.std)
-    correlation.predictors <- CORxy[-nrow(CORxy), -ncol(CORxy)]
-    correlation.response <- CORxy[-nrow(CORxy), ncol(CORxy)]
   }
   
   # Model saturation criterion
@@ -176,16 +165,16 @@ robStepSplitReg <- function(x, y,
   # Invoking the CPP code for the algorithm
   if(n_models==1)
     selections <- Robust_Stepwise(x.std, y.std,
-                                  correlation.predictors, correlation.response,
+                                  Rx, Ry,
                                   model_saturation_cpp,
                                   alpha,
                                   model_size) else
-                                selections <- Robust_Stepwise_Split(x.std, y.std,
-                                                                    correlation.predictors, correlation.response, 
-                                                                    model_saturation_cpp,
-                                                                    alpha,
-                                                                    model_size,
-                                                                    n_models)
+                                    selections <- Robust_Stepwise_Split(x.std, y.std,
+                                                                        Rx, Ry, 
+                                                                        model_saturation_cpp,
+                                                                        alpha,
+                                                                        model_size,
+                                                                        n_models)
   
   # Adjusting predictors (incrementing)
   if(n_models == 1)
@@ -210,13 +199,11 @@ robStepSplitReg <- function(x, y,
     
     for(model_id in 1:n_models){
       
-      adapense_fit <- pense::adapense_cv(x[, output$selections[[model_id]]], y, 
-                                         alpha = pense_alpha, cv_k = pense_cv_k, cv_repl = pense_cv_repl,
-                                         cl = cl,
-                                         ...)
-      output$intercepts[[model_id]] <- coef(adapense_fit)[1]
+      en_fit <- glmnet::cv.glmnet(x_imp[, output$selections[[model_id]]], y_imp,
+                                  alpha = en_alpha)
+      output$intercepts[[model_id]] <- coef(en_fit, s = "lambda.min")[1]
       output$coefficients[[model_id]] <- numeric(p)
-      output$coefficients[[model_id]][output$selections[[model_id]]] <- coef(adapense_fit)[-1]
+      output$coefficients[[model_id]][output$selections[[model_id]]] <- coef(en_fit, s = "lambda.min")[-1]
     }
   }
   
