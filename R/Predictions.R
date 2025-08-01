@@ -91,34 +91,34 @@
 predict.robStepSplitReg <- function(object, newx, group_index = NULL, 
                                     dynamic = FALSE,
                                     ...){
-  
-  if(!dynamic){
     
-    ensemble.coef <- coef(object, group_index = group_index)
-    output <- ensemble.coef[1] + as.numeric(newx %*% ensemble.coef[-1])
-    return(output)
-    
-  } else{
-    
-    DDC_cells <- cellWise::DDCpredict(newx, object$DDCx)$indcells
-    x_test_cells <- newx
-    x_test_cells[DDC_cells] <- NA
-    cells_id <- apply(x_test_cells, 1, function(x) return(which(is.na(x))))
-    var_selections <- lapply(object$coefficients, function(x) return(which(x!=0)))
-    selected_models <- matrix(0, nrow = nrow(newx), ncol = object$n_models)
-    for(model_id in 1:object$n_models){
-      
-      selected_models[, model_id] <- sapply(cells_id, function(x) return(any(x %in% var_selections[[model_id]])), 
-                                            simplify = TRUE)
+    if(!dynamic){
+        
+        ensemble.coef <- coef(object, group_index = group_index)
+        output <- ensemble.coef[1] + as.numeric(newx %*% ensemble.coef[-1])
+        return(output)
+        
+    } else{
+        
+        DDC_cells <- cellWise::DDCpredict(newx, object$DDCx)$indcells
+        x_test_cells <- newx
+        x_test_cells[DDC_cells] <- NA
+        cells_id <- apply(x_test_cells, 1, function(x) return(which(is.na(x))))
+        var_selections <- lapply(object$coefficients, function(x) return(which(x!=0)))
+        selected_models <- matrix(0, nrow = nrow(newx), ncol = object$n_models)
+        for(model_id in 1:object$n_models){
+            
+            selected_models[, model_id] <- sapply(cells_id, function(x) return(any(x %in% var_selections[[model_id]])), 
+                                                  simplify = TRUE)
+        }
+        selected_models <- lapply(1:nrow(newx), function(x, selected_models) return(which(selected_models[x, ] != 0)),
+                                  selected_models = selected_models)
+        output <- numeric(nrow(newx))
+        for(obs_id in 1:nrow(newx)){
+            
+            ensemble.coef <- coef(object, group_index = selected_models[[obs_id]])
+            output[obs_id] <- ensemble.coef[1] + as.numeric(newx[obs_id,] %*% ensemble.coef[-1])
+        }
+        return(output)
     }
-    selected_models <- lapply(1:nrow(newx), function(x, selected_models) return(which(selected_models[x, ] != 0)),
-                              selected_models = selected_models)
-    output <- numeric(nrow(newx))
-    for(obs_id in 1:nrow(newx)){
-      
-      ensemble.coef <- coef(object, group_index = selected_models[[obs_id]])
-      output[obs_id] <- ensemble.coef[1] + as.numeric(newx[obs_id,] %*% ensemble.coef[-1])
-    }
-    return(output)
-  }
 }

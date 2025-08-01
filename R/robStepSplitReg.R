@@ -1,8 +1,6 @@
 #' 
-#' @useDynLib robStepSplitReg
-#' @importFrom Rcpp sourceCpp
-#' 
-#' @importFrom stats coef sd median mad cor
+#' @importFrom stats coef sd median mad cor pf
+#' @importFrom glmnet cv.glmnet
 #'
 #' @title Robust Stepwise Split Regularized Regression
 #' 
@@ -103,116 +101,108 @@ robStepSplitReg <- function(x, y,
                             robust = TRUE,
                             compute_coef = FALSE,
                             en_alpha = 1/4){
-  
-  # Data input check
-  DataCheck(x, y, 
-            n_models,
-            model_saturation,
-            alpha, 
-            model_size,
-            robust,
-            compute_coef,
-            en_alpha)
-  
-  # Shuffle the data
-  n <- nrow(x)
-  p <- ncol(x)
-  random.permutation <- sample(1:n, n)
-  x <- x[random.permutation, ]
-  y <- y[random.permutation]
-  
-  # Model size check
-  if(model_saturation == "fixed"){
     
-    if(is.null(model_size))
-      model_size <- n - 1 else if(model_size >= n)
-        stop("The size of the models cannot be equal or exceed n.")
-  }
-  
-  # Standarization predictors and response
-  # Computation of correlation for predictors and response
-  if(robust){
+    # Data input check
+    DataCheck(x, y, 
+              n_models,
+              model_saturation,
+              alpha, 
+              model_size,
+              robust,
+              compute_coef,
+              en_alpha)
     
-    # Computation of correlations for predictors and response
-    DDCxy <- cellWise::DDC(cbind(x, y), DDCpars = list(fastDDC = TRUE, silent = TRUE))
-    rob.cor <- cor(DDCxy$Ximp)
-    Rx <- rob.cor[-nrow(rob.cor),-ncol(rob.cor)]
-    Ry <- rob.cor[-nrow(rob.cor), ncol(rob.cor)]
+    # Shuffle the data
+    n <- nrow(x)
+    p <- ncol(x)
+    random.permutation <- sample(1:n, n)
+    x <- x[random.permutation, ]
+    y <- y[random.permutation]
     
-    # Standardization of predictors and response
-    x_imp <- DDCxy$Ximp[, -ncol(DDCxy$Ximp)]
-    y_imp <- DDCxy$Ximp[, ncol(DDCxy$Ximp)]
-    x.std <- apply(x_imp, 2, function(x) return((x - median(x))/mad(x)))
-    y.std <- (y_imp - median(y_imp))/mad(y_imp)
-    xy.std <- cbind(x.std, y.std)
-    
-  } else{
-    
-    # Computation of correlations for predictors and response
-    CORxy <- cor(cbind(x, y))
-    Rx <- CORxy[-nrow(CORxy), -ncol(CORxy)]
-    Ry <- CORxy[-nrow(CORxy), ncol(CORxy)]
-    
-    # Standardization of predictors and response
-    x.std <- apply(x, 2, function(x) return((x - mean(x))/sd(x)))
-    y.std <- (y - mean(y))/sd(y)
-    xy.std <- cbind(x.std, y.std)
-  }
-  
-  # Model saturation criterion
-  model_saturation_cpp <- ifelse(model_saturation == "fixed", 1, 0)
-  
-  # Invoking the CPP code for the algorithm
-  if(n_models==1)
-    selections <- Robust_Stepwise(x.std, y.std,
-                                  Rx, Ry,
-                                  model_saturation_cpp,
-                                  alpha,
-                                  model_size) else
-                                    selections <- Robust_Stepwise_Split(x.std, y.std,
-                                                                        Rx, Ry, 
-                                                                        model_saturation_cpp,
-                                                                        alpha,
-                                                                        model_size,
-                                                                        n_models)
-  
-  # Adjusting predictors (incrementing)
-  if(n_models == 1)
-    selections <- list(selections)
-  for(model_id in 1:n_models)
-    selections[[model_id]] <- selections[[model_id]] + 1
-  
-  # Creating the list for the output
-  output <- list(x = x, y = y,
-    n_models = n_models,
-    model_saturation = model_saturation,
-    alpha = alpha,
-    model_size = model_size,
-    robust = robust,
-    compute_coef = compute_coef,
-    selections = selections,
-    intercepts = list(), coefficients = list(),
-    DDCx = cellWise::DDC(x, DDCpars = list(fastDDC = TRUE, nbngbrs = p-1, silent = TRUE)))
-
-  # Computation of final coefficients
-  if(compute_coef){
-    
-    for(model_id in 1:n_models){
-      
-      en_fit <- glmnet::cv.glmnet(x_imp[, output$selections[[model_id]]], y_imp,
-                                  alpha = en_alpha)
-      output$intercepts[[model_id]] <- coef(en_fit, s = "lambda.min")[1]
-      output$coefficients[[model_id]] <- numeric(p)
-      output$coefficients[[model_id]][output$selections[[model_id]]] <- coef(en_fit, s = "lambda.min")[-1]
+    # Model size check
+    if(model_saturation == "fixed"){
+        
+        if(is.null(model_size))
+            model_size <- n - 1 else if(model_size >= n)
+                stop("The size of the models cannot be equal or exceed n.")
     }
-  }
-  
-  # Create the object of class "stepSplitReg"
-  class(output) <- append("robStepSplitReg", class(output))
-  
-  # Returning the output from the stepwise algorithm
-  return(output)
+    
+    # Standarization predictors and response
+    # Computation of correlation for predictors and response
+    if(robust){
+        
+        # Computation of correlations for predictors and response
+        DDCxy <- cellWise::DDC(cbind(x, y), DDCpars = list(fastDDC = TRUE, silent = TRUE))
+        rob.cor <- cor(DDCxy$Ximp)
+        Rx <- rob.cor[-nrow(rob.cor),-ncol(rob.cor)]
+        Ry <- rob.cor[-nrow(rob.cor), ncol(rob.cor)]
+        
+        # Standardization of predictors and response
+        x_imp <- DDCxy$Ximp[, -ncol(DDCxy$Ximp)]
+        y_imp <- DDCxy$Ximp[, ncol(DDCxy$Ximp)]
+        x.std <- apply(x_imp, 2, function(x) return((x - median(x))/mad(x)))
+        y.std <- (y_imp - median(y_imp))/mad(y_imp)
+        xy.std <- cbind(x.std, y.std)
+        
+    } else{
+        
+        # Computation of correlations for predictors and response
+        CORxy <- cor(cbind(x, y))
+        Rx <- CORxy[-nrow(CORxy), -ncol(CORxy)]
+        Ry <- CORxy[-nrow(CORxy), ncol(CORxy)]
+        
+        # Standardization of predictors and response
+        x.std <- apply(x, 2, function(x) return((x - mean(x))/sd(x)))
+        y.std <- (y - mean(y))/sd(y)
+        xy.std <- cbind(x.std, y.std)
+        
+        # Set imputed data to original for non-robust case
+        x_imp <- x
+        y_imp <- y
+    }
+    
+    # Call robust stepwise selection algorithm
+    selections <- robustStepwiseSplit(Rx = Rx, Ry = Ry, 
+                                      n_models = n_models,
+                                      model_saturation = model_saturation,
+                                      alpha = alpha,
+                                      model_size = model_size,
+                                      n = n)
+    
+    # Creating the list for the output
+    output <- list(x = x, y = y,
+                   n_models = n_models,
+                   model_saturation = model_saturation,
+                   alpha = alpha,
+                   model_size = model_size,
+                   robust = robust,
+                   compute_coef = compute_coef,
+                   selections = selections,
+                   intercepts = list(), coefficients = list(),
+                   DDCx = cellWise::DDC(x, DDCpars = list(fastDDC = TRUE, nbngbrs = p-1, silent = TRUE)))
+    
+    # Computation of final coefficients
+    if(compute_coef){
+        
+        for(model_id in 1:n_models){
+            
+            if(length(output$selections[[model_id]]) > 0) {
+                en_fit <- glmnet::cv.glmnet(x_imp[, output$selections[[model_id]], drop = FALSE], y_imp,
+                                            alpha = en_alpha)
+                output$intercepts[[model_id]] <- coef(en_fit, s = "lambda.min")[1]
+                output$coefficients[[model_id]] <- numeric(p)
+                output$coefficients[[model_id]][output$selections[[model_id]]] <- coef(en_fit, s = "lambda.min")[-1]
+            } else {
+                # Empty model
+                output$intercepts[[model_id]] <- mean(y_imp)
+                output$coefficients[[model_id]] <- numeric(p)
+            }
+        }
+    }
+    
+    # Create the object of class "robStepSplitReg"
+    class(output) <- append("robStepSplitReg", class(output))
+    
+    # Returning the output from the stepwise algorithm
+    return(output)
 }
-
-
-

@@ -87,22 +87,22 @@
 #' mspe_ensemble <- mean((y_test - ensemble_preds)^2)/sigma^2
 #' 
 coef.robStepSplitReg <- function(object, group_index = NULL, ...){
-  
-  if(is.null(group_index)){
     
-    final_coef <- numeric(ncol(object$x) + 1)
-    for(model.ind in 1:object$n_models)
-      final_coef <- final_coef + c(object$intercepts[[model.ind]], object$coefficients[[model.ind]]) / object$n_models
-    return(as.numeric(final_coef))
-    
-  } else{
-    
-    if(any(!(group_index %in% 1:object$n_models)))
-      stop("The group index is invalid.")
-    
-    final_coef <- numeric(ncol(object$x) + 1)
-    for(model.ind in group_index)
-      final_coef <- final_coef + c(object$intercepts[[model.ind]], object$coefficients[[model.ind]]) / length(group_index)
-    return(as.numeric(final_coef))
-  }
+    if(is.null(group_index)){
+        
+        final_coef <- numeric(ncol(object$x) + 1)
+        for(model.ind in 1:object$n_models)
+            final_coef <- final_coef + c(object$intercepts[[model.ind]], object$coefficients[[model.ind]]) / object$n_models
+        return(as.numeric(final_coef))
+        
+    } else{
+        
+        if(any(!(group_index %in% 1:object$n_models)))
+            stop("The group index is invalid.")
+        
+        final_coef <- numeric(ncol(object$x) + 1)
+        for(model.ind in group_index)
+            final_coef <- final_coef + c(object$intercepts[[model.ind]], object$coefficients[[model.ind]]) / length(group_index)
+        return(as.numeric(final_coef))
+    }
 }
